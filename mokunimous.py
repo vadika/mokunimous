@@ -91,7 +91,7 @@ def post():
     posttext = request.form['post']
     id = mokum_message(posttext)
     mokum_comment(id, "click to comment --> http://127.0.0.1:5000/c/" + str(id))
-    return render_template('posted.html', posturl="https://mokum.place/anonymous/" + str(id), postid=str(id))
+    return redirect("https://mokum.place/anonymous/"+str(id))
 
 
 @app.route('/c/<cid>')
