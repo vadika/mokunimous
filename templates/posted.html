@@ -1,0 +1,18 @@
+{% extends "bootstrap/base.html" %}
+
+{% block navbar %}
+    <div class="navbar navbar-fixed-top">
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <h1> Posted! </h1>
+            <p>
+                Your post is
+                <a href={{ posturl }}>@anonymous/{{ postid }}</a> at Mokum.place<br>
+            </p>
+        </div>
+    </div>
+{% endblock %}

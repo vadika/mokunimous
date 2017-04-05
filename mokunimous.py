@@ -11,8 +11,12 @@ from pprint import pprint
 import yaml
 
 app = Flask(__name__)
+Bootstrap(app)
 
-postapikey = "83293677-c7d4-4483-829e-7026aa0ac2e2"
+with open("app_config.yml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+
+postapikey = cfg['app']['postapikey']
 
 def mokum_auth(apikey):
     try:
@@ -32,7 +36,7 @@ def mokum_message(message):
     try:
         postdata = {"post": {"timelines": ["user"],
                              "text": message,
-                             "comments_disabled": False,
+                             "comments_disabled": True,
                              "nsfw": False},
                     "_uuid": str(uuid.uuid4())
                     }
@@ -76,10 +80,26 @@ def mokum_comment(messageid, comment):
         return False
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def main():
+    return render_template('post.html')
 
+@app.route('/post', methods=['POST'])
+def post():
+    posttext = request.form['post']
+    id=mokum_message(posttext)
+    mokum_comment(id, "click to comment --> http://127.0.0.1:5000/c/"+str(id))
+    return render_template('posted.html', posturl="https://mokum.place/anonymous/"+str(id), postid=str(id))
 
+@app.route('/c/<cid>')
+def comm(cid):
+    return render_template('comment.html', cid=cid)
+
+@app.route('/comment', methods=['POST'])
+def commented():
+    postid=request.form['cid']
+    posttext=request.form['comment']
+    mokum_comment(postid,posttext)
+    return redirect("https://mokum.place/anonymous/"+ postid)
 
 # # mokum_message("проверка связи")
 # mokum_comment(mokum_message("пр св"), "это комментарий к пост")

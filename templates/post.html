@@ -1,0 +1,39 @@
+{% extends "bootstrap/base.html" %}
+
+{% block navbar %}
+    <div class="navbar navbar-fixed-top">
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <h1> Sportloto </h1>
+            <p>
+                Enter your post in the form below, it will be posted as
+                    <a href="https://mokum.place/anonymous">@anonymous</a> at Mokum.place<br>
+                First comment in the post has the link for anonymous comments.
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <form action="/post" method="post">
+                    <div class="form-group">
+                        <label for="inputAPI">
+                         Post goes here:</a>
+                        </label>
+                        <textarea class="form-control" rows="4" id="inputAPI" name="post"></textarea>
+                        <button type="submit" class="btn btn-lg btn-primary btn-block">Post!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <p>No warranties of any kind, use on your own risk!</p>
+            <p>(c) <a href="https://mokum.place/vadikas">@vadikas</a></p>
+        </div>
+    </div>
+{% endblock %}
