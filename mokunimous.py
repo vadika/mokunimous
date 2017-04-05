@@ -6,6 +6,13 @@ import urllib.parse
 import json
 import uuid
 import yaml
+import hashlib
+from Crypto import Random
+from Crypto.Cipher import AES
+import base64
+
+
+
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -16,6 +23,30 @@ with open("app_config.yml", 'r') as ymlfile:
 postapikey = cfg['app']['postapikey']
 mainurl = cfg['app']['mainurl']
 appurl = cfg['app']['appurl']
+secretkey = cfg['app']['secret']
+
+# Some crypto staff
+
+BLOCK_SIZE = 16
+
+
+def trans(key):
+    return hashlib.md5(key.encode("utf-8")).digest()
+
+
+def encrypt(message, passphrase):
+    passphrase = trans(passphrase)
+    IV = Random.new().read(BLOCK_SIZE)
+    aes = AES.new(passphrase, AES.MODE_CFB, IV)
+    return base64.b64encode(IV + aes.encrypt(message)).decode("utf-8")
+
+
+def decrypt(encrypted, passphrase):
+    passphrase = trans(passphrase)
+    encrypted = base64.b64decode(encrypted)
+    IV = encrypted[:BLOCK_SIZE]
+    aes = AES.new(passphrase, AES.MODE_CFB, IV)
+    return aes.decrypt(encrypted[BLOCK_SIZE:]).decode("utf-8")
 
 
 def mokum_message(message):
@@ -75,7 +106,7 @@ def main():
 def post():
     posttext = request.form['post']
     id = mokum_message(posttext)
-    mokum_comment(id, "click to comment --> " + appurl + "/c/" + str(id))
+    mokum_comment(id, "click to comment --> " + appurl + "/c/" + encrypt(str(id), secretkey))
     return redirect(mainurl + str(id))
 
 
@@ -86,7 +117,7 @@ def comm(cid):
 
 @app.route('/comment', methods=['POST'])
 def commented():
-    postid = request.form['cid']
+    postid = decrypt(request.form['cid'], secretkey)
     posttext = request.form['comment']
     mokum_comment(postid, posttext)
     return redirect(mainurl + postid)
