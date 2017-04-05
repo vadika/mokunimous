@@ -18,6 +18,7 @@ with open("app_config.yml", 'r') as ymlfile:
 
 postapikey = cfg['app']['postapikey']
 
+
 def mokum_auth(apikey):
     try:
         req = urllib.request.Request("https://mokum.place/api/v1/whoami.json")
@@ -79,27 +80,32 @@ def mokum_comment(messageid, comment):
     except:
         return False
 
+
 @app.route('/')
 def main():
     return render_template('post.html')
 
+
 @app.route('/post', methods=['POST'])
 def post():
     posttext = request.form['post']
-    id=mokum_message(posttext)
-    mokum_comment(id, "click to comment --> http://127.0.0.1:5000/c/"+str(id))
-    return render_template('posted.html', posturl="https://mokum.place/anonymous/"+str(id), postid=str(id))
+    id = mokum_message(posttext)
+    mokum_comment(id, "click to comment --> http://127.0.0.1:5000/c/" + str(id))
+    return render_template('posted.html', posturl="https://mokum.place/anonymous/" + str(id), postid=str(id))
+
 
 @app.route('/c/<cid>')
 def comm(cid):
     return render_template('comment.html', cid=cid)
 
+
 @app.route('/comment', methods=['POST'])
 def commented():
-    postid=request.form['cid']
-    posttext=request.form['comment']
-    mokum_comment(postid,posttext)
-    return redirect("https://mokum.place/anonymous/"+ postid)
+    postid = request.form['cid']
+    posttext = request.form['comment']
+    mokum_comment(postid, posttext)
+    return redirect("https://mokum.place/anonymous/" + postid)
+
 
 # # mokum_message("проверка связи")
 # mokum_comment(mokum_message("пр св"), "это комментарий к пост")
