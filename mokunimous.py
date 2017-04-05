@@ -1,13 +1,10 @@
 from flask import Flask
-from flask import request, redirect, session, render_template, flash, url_for
+from flask import request, redirect, render_template
 from flask_bootstrap import Bootstrap
-import hashlib
 import urllib.request
 import urllib.parse
 import json
-# import redis
 import uuid
-from pprint import pprint
 import yaml
 
 app = Flask(__name__)
@@ -17,20 +14,8 @@ with open("app_config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 postapikey = cfg['app']['postapikey']
-
-
-def mokum_auth(apikey):
-    try:
-        req = urllib.request.Request("https://mokum.place/api/v1/whoami.json")
-        req.add_header('Content-Type', 'application/json')
-        req.add_header('Accept', 'application/json')
-        req.add_header('X-API-Token', apikey)
-        resp = urllib.request.urlopen(req)
-        message = json.loads(resp.read().decode("utf-8"))
-        if message["user"]["name"]:
-            return message["user"]["name"]
-    except:
-        return False
+mainurl = cfg['app']['mainurl']
+appurl = cfg['app']['appurl']
 
 
 def mokum_message(message):
@@ -90,8 +75,8 @@ def main():
 def post():
     posttext = request.form['post']
     id = mokum_message(posttext)
-    mokum_comment(id, "click to comment --> http://127.0.0.1:5000/c/" + str(id))
-    return redirect("https://mokum.place/anonymous/"+str(id))
+    mokum_comment(id, "click to comment --> " + appurl + "/c/" + str(id))
+    return redirect(mainurl + str(id))
 
 
 @app.route('/c/<cid>')
@@ -104,11 +89,8 @@ def commented():
     postid = request.form['cid']
     posttext = request.form['comment']
     mokum_comment(postid, posttext)
-    return redirect("https://mokum.place/anonymous/" + postid)
+    return redirect(mainurl + postid)
 
-
-# # mokum_message("проверка связи")
-# mokum_comment(mokum_message("пр св"), "это комментарий к пост")
 
 if __name__ == '__main__':
     app.run(debug=True)
